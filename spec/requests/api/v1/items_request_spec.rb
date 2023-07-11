@@ -76,7 +76,7 @@ describe 'Items API' do
         name: 'Watch',
         description: 'Time telling device',
         unit_price: 4000,
-        merchant_id: merchant1
+        merchant_id: merchant1.id
       })
       headers = {"CONTENT_TYPE" => "application/json"}
       post api_v1_items_path, headers: headers, params: JSON.generate(item: item_params)
