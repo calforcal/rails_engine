@@ -10,7 +10,7 @@ describe 'Items API' do
   let!(:item4) { create(:item, merchant_id: merchant2.id) }
   let!(:item5) { create(:item, merchant_id: merchant2.id) }
   let!(:item6) { create(:item, merchant_id: merchant2.id) }
-  
+
   context 'GETs all items' do
 
     it 'can get all of the items' do
@@ -67,6 +67,25 @@ describe 'Items API' do
       expect(item[:attributes]).to have_key(:merchant_id)
       expect(item[:attributes][:merchant_id]).to be_a(Integer)
       expect(item[:attributes][:merchant_id]).to eq(merchant1.id)
+    end
+  end
+
+  context 'CREATE an item' do
+    it 'can create an item' do
+      item_params = ({
+        name: 'Watch',
+        description: 'Time telling device',
+        unit_price: 4000,
+        merchant_id: merchant1.id
+      })
+      headers = {"CONTENT_TYPE" => "application/json"}
+      post api_v1_items_path, headers: headers, params: JSON.generate(item: item_params)
+      created_item = Item.last
+
+      expect(created_item.name).to eq(item_params[:name])
+      expect(created_item.description).to eq(item_params[:description])
+      expect(created_item.unit_price).to eq(item_params[:unit_price])
+      expect(created_item.merchant_id).to eq(item_params[:merchant_id])
     end
   end
 end
