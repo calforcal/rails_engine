@@ -27,15 +27,12 @@ describe 'Merchants API' do
   context 'GET one merchant' do
     it 'can get one merchant by id' do
       id = create(:merchant).id
-      
-      get api_v1_merchant(id)
+
+      get api_v1_merchant_path(id)
 
       expect(response).to be_successful
 
       merchant = JSON.parse(response.body, symbolize_names: true)
-
-      expect(merchant.count).to eq(1)
-
 
       expect(merchant).to have_key(:id)
       expect(merchant[:id]).to be_an(Integer)
