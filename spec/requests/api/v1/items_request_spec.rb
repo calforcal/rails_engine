@@ -49,7 +49,7 @@ describe 'Items API' do
       expect(response).to be_successful
 
       parsed = JSON.parse(response.body, symbolize_names: true)
-      item = parsed[:item][:data]
+      item = parsed[:data]
 
       expect(item).to have_key(:id)
       expect(item[:id]).to be_a(String)
@@ -121,16 +121,15 @@ describe 'Items API' do
 
   context 'GET the merchant data for an item' do
     it 'can get the merchant associated with an item' do
-      get api_v1_item_path(item1)
+      get api_v1_item_merchants_path(item1)
 
       expect(response).to be_successful
 
       parsed = JSON.parse(response.body, symbolize_names: true)
-
       item = parsed[:item][:data]
       merchant = parsed[:merchant][:data]
 
-      # expect(item).to have_key(:id)
+      expect(item).to have_key(:id)
       expect(item[:id]).to be_a(String)
       expect(item[:id]).to eq(item1.id.to_s)
 
