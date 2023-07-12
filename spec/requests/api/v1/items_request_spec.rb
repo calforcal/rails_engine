@@ -126,18 +126,11 @@ describe 'Items API' do
       expect(response).to be_successful
 
       parsed = JSON.parse(response.body, symbolize_names: true)
-      item = parsed[:item][:data]
-      merchant = parsed[:merchant][:data]
-
-      expect(item).to have_key(:id)
-      expect(item[:id]).to be_a(String)
-      expect(item[:id]).to eq(item1.id.to_s)
+      merchant = parsed[:data]
 
       expect(merchant).to have_key(:id)
       expect(merchant[:id]).to be_a(String)
       expect(merchant[:id]).to eq(merchant1.id.to_s)
-
-      expect(item[:attributes][:merchant_id]).to eq(merchant1.id)
     end
   end
 end

@@ -77,4 +77,26 @@ describe 'Merchants API' do
       end
     end
   end
+
+  context 'GET one merchant based on search' do
+    let!(:find_merchant) { create(:merchant, name: "Buzz") }
+
+    it 'can find one merchant based on searching name' do
+      get api_v1_merchants_find_path(name: 'Bu')
+
+      expect(response).to be_successful
+
+      parsed = JSON.parse(response.body, symbolize_names: true)
+      
+      merchant = parsed[:data]
+
+      expect(merchant).to have_key(:id)
+      expect(merchant[:id]).to be_a(String)
+      expect(merchant[:id]).to eq(find_merchant.id.to_s)
+      
+      expect(merchant[:attributes]).to have_key(:name)
+      expect(merchant[:attributes][:name]).to be_a(String)
+      expect(merchant[:attributes][:name]).to eq('Buzz')
+    end
+  end
 end
