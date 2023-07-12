@@ -121,7 +121,7 @@ describe 'Items API' do
 
   context 'GET the merchant data for an item' do
     it 'can get the merchant associated with an item' do
-      get api_v1_item_merchants_path(item1)
+      get api_v1_item_merchant_index_path(item1)
 
       expect(response).to be_successful
 
