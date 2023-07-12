@@ -133,4 +133,35 @@ describe 'Items API' do
       expect(merchant[:id]).to eq(merchant1.id.to_s)
     end
   end
+
+  context 'GET all items based on search' do
+    let!(:skis) { create(:item, name: 'alpine skis', merchant_id: merchant1.id) }
+    let!(:tie) { create(:item, name: 'neckTIE', merchant_id: merchant1.id) }
+    let!(:skirt) { create(:item, name: 'skirts', merchant_id: merchant1.id) }
+
+    it 'can return all items based on search criteria' do
+      get api_v1_items_find_all(name: 'sk')
+
+      parsed = JSON.parse(response.body, symbolize_names: true)
+
+      items = parsed[:data]
+
+      expect(items.count).to eq(2)
+
+      item_skis = items[0]
+      item_skirts = items[1]
+
+      expect(item_skis[:id]).to eq(skis.id.to_s)
+      expect(item_skis[:name]).to eq('alpine skis')
+      expect(item_skis[:description]).to eq(skis.description)
+      expect(item_skis[:unit_price]).to eq(skis.unit_price)
+      expect(item_skis[:merchant_id]).to eq(skis.merchant1.id)
+
+      expect(item_skirts[:id]).to eq(skirt.id.to_s)
+      expect(item_skirts[:name]).to eq('skirts')
+      expect(item_skirts[:description]).to eq(skirt.description)
+      expect(item_skirts[:unit_price]).to eq(skirt.unit_price)
+      expect(item_skirts[:merchant_id]).to eq(skirt.merchant1.id)
+    end
+  end
 end
