@@ -111,7 +111,7 @@ describe 'Items API' do
 
       expect(Item.count).to eq(7)
 
-      delete api_vi_item_path(delete_item)
+      delete api_v1_item_path(delete_item.id)
 
       expect(response).to be_successful
       expect(Item.count).to eq(6)
