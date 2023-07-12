@@ -104,4 +104,18 @@ describe 'Items API' do
       expect(item.name).to eq('Bike Boy')
     end
   end
+
+  context 'DESTROY an Item' do
+    it 'can destroy an item' do
+      delete_item = create(:item, merchant_id: merchant1.id)
+
+      expect(Item.count).to eq(7)
+
+      delete api_v1_item_path(delete_item.id)
+
+      expect(response).to be_successful
+      expect(Item.count).to eq(6)
+      expect{Item.find(delete_item.id)}.to raise_error(ActiveRecord::RecordNotFound)
+    end
+  end
 end
