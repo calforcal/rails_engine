@@ -135,12 +135,13 @@ describe 'Items API' do
   end
 
   context 'GET all items based on search' do
-    let!(:skis) { create(:item, name: 'alpine skis', merchant_id: merchant1.id) }
-    let!(:tie) { create(:item, name: 'neckTIE', merchant_id: merchant1.id) }
-    let!(:skirt) { create(:item, name: 'skirts', merchant_id: merchant1.id) }
+    it 'can return all items based on search by name' do
+      Item.destroy_all
+      skis = create(:item, name: 'alpine skis', unit_price: 100, merchant_id: merchant1.id)
+      tie = create(:item, name: 'neckTIE', unit_price: 200, merchant_id: merchant1.id)
+      skirt = create(:item, name: 'skirts', unit_price: 300, merchant_id: merchant1.id)
 
-    it 'can return all items based on search criteria' do
-      get api_v1_items_find_all(name: 'sk')
+      get api_v1_items_find_all_path(name: 'sk')
 
       parsed = JSON.parse(response.body, symbolize_names: true)
 
@@ -152,16 +153,77 @@ describe 'Items API' do
       item_skirts = items[1]
 
       expect(item_skis[:id]).to eq(skis.id.to_s)
-      expect(item_skis[:name]).to eq('alpine skis')
-      expect(item_skis[:description]).to eq(skis.description)
-      expect(item_skis[:unit_price]).to eq(skis.unit_price)
-      expect(item_skis[:merchant_id]).to eq(skis.merchant1.id)
+      expect(item_skis[:attributes][:name]).to eq('alpine skis')
+      expect(item_skis[:attributes][:description]).to eq(skis.description)
+      expect(item_skis[:attributes][:unit_price]).to eq(skis.unit_price)
+      expect(item_skis[:attributes][:merchant_id]).to eq(merchant1.id)
 
       expect(item_skirts[:id]).to eq(skirt.id.to_s)
-      expect(item_skirts[:name]).to eq('skirts')
-      expect(item_skirts[:description]).to eq(skirt.description)
-      expect(item_skirts[:unit_price]).to eq(skirt.unit_price)
-      expect(item_skirts[:merchant_id]).to eq(skirt.merchant1.id)
+      expect(item_skirts[:attributes][:name]).to eq('skirts')
+      expect(item_skirts[:attributes][:description]).to eq(skirt.description)
+      expect(item_skirts[:attributes][:unit_price]).to eq(skirt.unit_price)
+      expect(item_skirts[:attributes][:merchant_id]).to eq(merchant1.id)
+    end
+
+    it 'can return all items based on search by minimum price' do
+      Item.destroy_all
+
+      skis = create(:item, name: 'alpine skis', unit_price: 100, merchant_id: merchant1.id)
+      tie = create(:item, name: 'neckTIE', unit_price: 200, merchant_id: merchant1.id)
+      skirt = create(:item, name: 'skirts', unit_price: 300, merchant_id: merchant1.id)
+      get api_v1_items_find_all_path(min_price: 199)
+
+      parsed = JSON.parse(response.body, symbolize_names: true)
+
+      items = parsed[:data]
+
+      expect(items.count).to eq(2)
+
+      item_tie = items[0]
+      item_skirts = items[1]
+
+      expect(item_tie[:id]).to eq(tie.id.to_s)
+      expect(item_tie[:attributes][:name]).to eq('neckTIE')
+      expect(item_tie[:attributes][:description]).to eq(tie.description)
+      expect(item_tie[:attributes][:unit_price]).to eq(tie.unit_price)
+      expect(item_tie[:attributes][:merchant_id]).to eq(merchant1.id)
+
+      expect(item_skirts[:id]).to eq(skirt.id.to_s)
+      expect(item_skirts[:attributes][:name]).to eq('skirts')
+      expect(item_skirts[:attributes][:description]).to eq(skirt.description)
+      expect(item_skirts[:attributes][:unit_price]).to eq(skirt.unit_price)
+      expect(item_skirts[:attributes][:merchant_id]).to eq(merchant1.id)
+    end
+
+    it 'can return all items based on search by maximum price' do
+      Item.destroy_all
+
+      skis = create(:item, name: 'alpine skis', unit_price: 100, merchant_id: merchant1.id)
+      tie = create(:item, name: 'neckTIE', unit_price: 200, merchant_id: merchant1.id)
+      skirt = create(:item, name: 'skirts', unit_price: 300, merchant_id: merchant1.id)
+
+      get api_v1_items_find_all_path(max_price: 201)
+
+      parsed = JSON.parse(response.body, symbolize_names: true)
+
+      items = parsed[:data]
+
+      expect(items.count).to eq(2)
+
+      item_skis = items[0]
+      item_tie = items[1]
+
+      expect(item_skis[:id]).to eq(skis.id.to_s)
+      expect(item_skis[:attributes][:name]).to eq('alpine skis')
+      expect(item_skis[:attributes][:description]).to eq(skis.description)
+      expect(item_skis[:attributes][:unit_price]).to eq(skis.unit_price)
+      expect(item_skis[:attributes][:merchant_id]).to eq(merchant1.id)
+
+      expect(item_tie[:id]).to eq(tie.id.to_s)
+      expect(item_tie[:attributes][:name]).to eq('neckTIE')
+      expect(item_tie[:attributes][:description]).to eq(tie.description)
+      expect(item_tie[:attributes][:unit_price]).to eq(tie.unit_price)
+      expect(item_tie[:attributes][:merchant_id]).to eq(merchant1.id)
     end
   end
 end
