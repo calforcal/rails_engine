@@ -1,15 +1,10 @@
 require 'rails_helper'
 
 describe 'Items API' do
-  let!(:merchant1) { create(:merchant) }
-  let!(:item1) { create(:item, merchant_id: merchant1.id) }
-  let!(:item2) { create(:item, merchant_id: merchant1.id) }
-  let!(:item3) { create(:item, merchant_id: merchant1.id) }
-
-  let!(:merchant2) { create(:merchant) }
-  let!(:item4) { create(:item, merchant_id: merchant2.id) }
-  let!(:item5) { create(:item, merchant_id: merchant2.id) }
-  let!(:item6) { create(:item, merchant_id: merchant2.id) }
+  let!(:merchant1) { create(:merchant, name: 'Bike Shop') }
+  let!(:item1) { create(:item, name: 'Bike', description: 'It rolls good', unit_price: 5000, merchant_id: merchant1.id) }
+  let!(:item2) { create(:item, name: 'Tire', description: 'Helps with rolling', unit_price: 100,  merchant_id: merchant1.id) }
+  let!(:item3) { create(:item, name: 'Helmet', description: 'Keeps you safe', unit_price: 200,  merchant_id: merchant1.id) }
 
   context 'GETs all items' do
 
@@ -21,24 +16,42 @@ describe 'Items API' do
       parsed = JSON.parse(response.body, symbolize_names: true)
       items = parsed[:data]
 
-      expect(items.count).to eq(6)
+      expect(items.count).to eq(3)
 
-      items.each do |item|
-        expect(item).to have_key(:id)
-        expect(item[:id]).to be_a(String)
-        
-        expect(item[:attributes]).to have_key(:name)
-        expect(item[:attributes][:name]).to be_a(String)
-        
-        expect(item[:attributes]).to have_key(:description)
-        expect(item[:attributes][:description]).to be_a(String)
-        
-        expect(item[:attributes]).to have_key(:unit_price)
-        expect(item[:attributes][:unit_price]).to be_a(Float)
-        
-        expect(item[:attributes]).to have_key(:merchant_id)
-        expect(item[:attributes][:merchant_id]).to be_a(Integer)
-      end
+      bike = items[0]
+      tire = items[1]
+      helmet = items[2]
+      
+
+      expect(bike).to have_key(:id)
+      expect(bike[:id]).to be_a(String)
+      
+      expect(bike[:attributes]).to have_key(:name)
+      expect(bike[:attributes][:name]).to be_a(String)
+      
+      expect(bike[:attributes]).to have_key(:description)
+      expect(bike[:attributes][:description]).to be_a(String)
+      
+      expect(bike[:attributes]).to have_key(:unit_price)
+      expect(bike[:attributes][:unit_price]).to be_a(Float)
+      
+      expect(bike[:attributes]).to have_key(:merchant_id)
+      expect(bike[:attributes][:merchant_id]).to be_a(Integer)
+
+      expect(bike[:attributes][:name]).to eq('Bike')
+      expect(bike[:attributes][:description]).to eq('It rolls good')
+      expect(bike[:attributes][:unit_price]).to eq(5000)
+      expect(bike[:attributes][:merchant_id]).to eq(merchant1.id)
+
+      expect(tire[:attributes][:name]).to eq('Tire')
+      expect(tire[:attributes][:description]).to eq('Helps with rolling')
+      expect(tire[:attributes][:unit_price]).to eq(100)
+      expect(tire[:attributes][:merchant_id]).to eq(merchant1.id)
+
+      expect(helmet[:attributes][:name]).to eq('Helmet')
+      expect(helmet[:attributes][:description]).to eq('Keeps you safe')
+      expect(helmet[:attributes][:unit_price]).to eq(200)
+      expect(helmet[:attributes][:merchant_id]).to eq(merchant1.id)
     end
   end
 
@@ -66,6 +79,10 @@ describe 'Items API' do
       
       expect(item[:attributes]).to have_key(:merchant_id)
       expect(item[:attributes][:merchant_id]).to be_a(Integer)
+
+      expect(item[:attributes][:name]).to eq('Bike')
+      expect(item[:attributes][:description]).to eq('It rolls good')
+      expect(item[:attributes][:unit_price]).to eq(5000)
       expect(item[:attributes][:merchant_id]).to eq(merchant1.id)
     end
   end
@@ -109,12 +126,12 @@ describe 'Items API' do
     it 'can destroy an item' do
       delete_item = create(:item, merchant_id: merchant1.id)
 
-      expect(Item.count).to eq(7)
+      expect(Item.count).to eq(4)
 
       delete api_v1_item_path(delete_item.id)
 
       expect(response).to be_successful
-      expect(Item.count).to eq(6)
+      expect(Item.count).to eq(3)
       expect{Item.find(delete_item.id)}.to raise_error(ActiveRecord::RecordNotFound)
     end
   end
@@ -130,7 +147,9 @@ describe 'Items API' do
 
       expect(merchant).to have_key(:id)
       expect(merchant[:id]).to be_a(String)
+
       expect(merchant[:id]).to eq(merchant1.id.to_s)
+      expect(merchant[:attributes][:name]).to eq('Bike Shop')
     end
   end
 
