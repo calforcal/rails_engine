@@ -8,11 +8,14 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def create
-    render json: ItemSerializer.new(Item.create(item_params)), status: :created
+    render json: ItemSerializer.new(Item.create!(item_params)), status: :created
   end
 
   def update
-    render json: ItemSerializer.new(Item.update(params[:id], item_params))
+    @item = Item.find(params[:id])
+    @item.update!(item_params)
+
+    render json: ItemSerializer.new(@item)
   end
 
   def destroy
@@ -20,12 +23,15 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def find_by_search
-    if params.has_key?(:name)
-      render json: ItemSerializer.new(Item.search_by_name(params[:name]))
-    elsif params.has_key?(:min_price)
-      render json: ItemSerializer.new(Item.search_by_min_price(params[:min_price]))
-    elsif params.has_key?(:max_price)
-      render json: ItemSerializer.new(Item.search_by_max_price(params[:max_price]))
+    found_items = Item.find_all_items(params)
+
+    if !found_items
+      render json: { errors: 'Bad Request' }, status: 400
+    elsif found_items.empty?
+      array = [Item.new]
+      render json: ItemSerializer.new(array)
+    else
+      render json: ItemSerializer.new(found_items)
     end
   end
 
