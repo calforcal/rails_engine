@@ -15,12 +15,12 @@ RSpec.describe Item, type: :model do
 
       it 'can find all items based on a minimum price' do
         expect(Item.all).to eq([skis, tie, skirt])
-        expect(Item.search_by_min_price(199)).to eq([tie, skirt])
+        expect(Item.find_all_by_price(min_price: 199)).to eq([tie, skirt])
       end
 
       it 'can find all items based on a maximum price' do
         expect(Item.all).to eq([skis, tie, skirt])
-        expect(Item.search_by_max_price(201)).to eq([skis, tie])
+        expect(Item.find_all_by_price(max_price: 201)).to eq([skis, tie])
       end
     end
   end

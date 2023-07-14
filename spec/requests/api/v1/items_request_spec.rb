@@ -335,8 +335,9 @@ describe 'Items API' do
         expect(response).to be_successful
 
         parsed = JSON.parse(response.body, symbolize_names: true)
+        expect(parsed[:data]).to be_an(Array)
 
-        expect(parsed[:data][:type]).to eq('item')
+        expect(parsed[:data].first[:type]).to eq('item')
       end
     end
   end
@@ -368,6 +369,15 @@ describe 'Items API' do
         expect(item_helmet[:attributes][:merchant_id]).to eq(merchant1.id)
       end
 
+      it 'can return NO items when min_price is too high' do
+        get api_v1_items_find_all_path(min_price: 500)
+
+        parsed = JSON.parse(response.body, symbolize_names: true)
+        expect(parsed[:data]).to be_an(Array)
+
+        expect(parsed[:data].first[:type]).to eq('item')
+      end
+
       it 'can return all items based on search by max_price' do
         get api_v1_items_find_all_path(max_price: 201)
 
@@ -391,6 +401,28 @@ describe 'Items API' do
         expect(item_tire[:attributes][:description]).to eq(item2.description)
         expect(item_tire[:attributes][:unit_price]).to eq(item2.unit_price)
         expect(item_tire[:attributes][:merchant_id]).to eq(merchant1.id)
+      end
+
+      it 'can return NO items when max_price is too low' do
+        get api_v1_items_find_all_path(max_price: 99)
+
+        parsed = JSON.parse(response.body, symbolize_names: true)
+        expect(parsed[:data]).to be_an(Array)
+
+        expect(parsed[:data].first[:type]).to eq('item')
+      end
+    end
+
+    context 'sad paths' do
+      it 'returns a 400 error when name and price are given' do
+        get api_v1_items_find_all_path(name: 'Bike', max_price: 99)
+
+        expect(response).to_not be_successful
+        expect(response.status).to eq(400)
+  
+        data = JSON.parse(response.body, symbolize_names: true)
+        
+        expect(data[:errors]).to eq("Bad Request")
       end
     end
   end

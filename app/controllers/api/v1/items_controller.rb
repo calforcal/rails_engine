@@ -23,17 +23,15 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def find_by_search
+    found_items = Item.find_all_items(params)
 
-    if Item.search_by_name(params[:name]) && Item.search_by_name(params[:name]).empty?
-      render json: ItemSerializer.new(Item.new)
-    elsif params.has_key?(:name) && (params.has_key?(:min_price) || params.has_key?(:max_price))
-      render json: ErrorSerializer.new
-    elsif params.has_key?(:name)
-      render json: ItemSerializer.new(Item.search_by_name(params[:name]))
-    elsif params.has_key?(:min_price)
-      render json: ItemSerializer.new(Item.search_by_min_price(params[:min_price]))
-    elsif params.has_key?(:max_price)
-      render json: ItemSerializer.new(Item.search_by_max_price(params[:max_price]))
+    if !found_items
+      render json: { errors: 'Bad Request' }, status: 400
+    elsif found_items.empty?
+      array = [Item.new]
+      render json: ItemSerializer.new(array)
+    else
+      render json: ItemSerializer.new(found_items)
     end
   end
 
