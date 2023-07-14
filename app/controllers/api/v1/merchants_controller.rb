@@ -9,6 +9,12 @@ class Api::V1::MerchantsController < ApplicationController
   end
 
   def find_by_search
-    render json: MerchantSerializer.new(Merchant.search_by_name(params[:name]))
+    found_merchant = Merchant.search_by_name(params[:name])
+    
+    if found_merchant.nil?
+      render json: MerchantSerializer.new(Merchant.new)
+    else
+      render json: MerchantSerializer.new(Merchant.search_by_name(params[:name]))
+    end
   end
 end

@@ -12,7 +12,17 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def update
-    render json: ItemSerializer.new(Item.update(params[:id], item_params))
+    @item = Item.find(params[:id])
+    @item.update!(item_params)
+
+    render json: ItemSerializer.new(@item)
+    # found_merchant = Merchant.find(params[:item][:merchant_id])
+
+    # if found_merchant
+    #   render json: MerchantSerializer.new(found_merchant)
+    # else
+    #   render json: ItemSerializer.new(Item.update(params[:id], item_params))
+    # end
   end
 
   def destroy
@@ -20,7 +30,12 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def find_by_search
-    if params.has_key?(:name)
+
+    if Item.search_by_name(params[:name]) && Item.search_by_name(params[:name]).empty?
+      render json: ItemSerializer.new(Item.new)
+    elsif params.has_key?(:name) && (params.has_key?(:min_price) || params.has_key?(:max_price))
+      render json: ErrorSerializer.new
+    elsif params.has_key?(:name)
       render json: ItemSerializer.new(Item.search_by_name(params[:name]))
     elsif params.has_key?(:min_price)
       render json: ItemSerializer.new(Item.search_by_min_price(params[:min_price]))
